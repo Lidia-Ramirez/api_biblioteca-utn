@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const Libro = require("../models/libroModel");
 
 exports.getAllLibros = async (req, res) => {
@@ -24,37 +26,33 @@ exports.getLibroById = async (req, res) => {
 exports.createLibro = async (req, res) => {
   try {
     const nuevoLibro = await Libro.create(req.body);
-    await nuevoLibro.save();
     res.status(201).json(nuevoLibro);
   } catch (error) {
-    res.status(500).json({ error: "Error al crear el Libro" });
+    res.status(500).json({ error: "Error al crear el Libro", details: error.message });
   }
 };
 
 exports.updateLibro = async (req, res) => {
   try {
-    const libro = await Libro.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-
+    const libro = await Libro.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!libro) {
       return res.status(404).json({ error: "Libro no encontrado" });
     }
-
     res.status(200).json(libro);
   } catch (error) {
-    res.status(500).json({ error: "Error al actualizar el Libro" });
+    res.status(500).json({ error: "Error al actualizar el Libro", details: error.message });
   }
 };
 
 exports.deleteLibro = async (req, res) => {
   try {
     const libroId = req.params.id;
-
     const libroEliminado = await Libro.findByIdAndRemove(libroId);
-
+    if (!libroEliminado) {
+      return res.status(404).json({ error: "Libro no encontrado" });
+    }
     res.status(200).json(libroEliminado);
   } catch (error) {
-    res.status(500).json({ error: "Error al eliminar el Libro" });
+    res.status(500).json({ error: "Error al eliminar el Libro", details: error.message });
   }
 };
